@@ -155,7 +155,8 @@ def index():
     """, data=data, updated=updated)
 
 
-if __name__ == "__main__":
-    Thread(target=scheduler, daemon=True).start()
-    update_cache(force=True)
-    app.run(host="0.0.0.0", port=5000)
+# Uruchom scheduler przy starcie aplikacji (działa w Railway)
+Thread(target=scheduler, daemon=True).start()
+
+# Wykonaj pierwsze pobranie danych przy starcie
+update_cache(force=True)
