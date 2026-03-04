@@ -187,4 +187,4 @@ def index():
 
 # pierwsze pobranie danych
 
-update_cache(force=True)
+
