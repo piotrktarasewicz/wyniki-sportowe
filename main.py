@@ -1,10 +1,12 @@
+import os
 from flask import Flask
 
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return """
-    <h1>Test aplikacji</h1>
-    <p>Jeśli to widzisz, Railway działa poprawnie.</p>
-    """
+    return "OK – aplikacja działa"
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
