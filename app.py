@@ -36,9 +36,7 @@ def fetch_polish_matches():
     data = []
 
     for league_name, url in leagues:
-
         try:
-
             response = requests.get(url, headers=headers, timeout=20)
             response.raise_for_status()
 
@@ -47,9 +45,7 @@ def fetch_polish_matches():
             matches = []
 
             for line in soup.get_text("\n").splitlines():
-
                 line = line.strip()
-
                 if " - " in line and ":" in line:
                     matches.append(line)
 
@@ -77,7 +73,6 @@ def update_cache(force=False):
             return
 
     try:
-
         leagues = fetch_polish_matches()
 
         cache["data"] = leagues
@@ -93,9 +88,7 @@ def update_cache(force=False):
 # ---------------------------
 
 def scheduler():
-
     while True:
-
         try:
             update_cache(force=True)
         except Exception as e:
@@ -110,7 +103,10 @@ def start_scheduler():
     thread.start()
 
 
-start_scheduler()
+# scheduler uruchomi się dopiero przy pierwszym request
+@app.before_first_request
+def activate_scheduler():
+    start_scheduler()
 
 
 # ---------------------------
@@ -155,7 +151,6 @@ def index():
     updated = cache["last_update"]
 
     return render_template_string("""
-
     <h1>Wyniki piłki nożnej – Polska</h1>
 
     <p>Ostatnia aktualizacja: {{updated}}</p>
@@ -183,16 +178,11 @@ def index():
     {% endfor %}
 
     <script>
-
     function refresh(){
-
         fetch('/refresh')
         .then(r => r.json())
         .then(data => alert(data.message))
         .then(() => location.reload())
-
     }
-
     </script>
-
     """, leagues=leagues, updated=updated)
