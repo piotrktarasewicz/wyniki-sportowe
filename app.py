@@ -25,11 +25,9 @@ def fetch_matches_for_date(date_str):
         "x-apisports-key": API_KEY
     }
 
-    params = {
-        "live": "all"
-    }
+    url = "https://v3.football.api-sports.io/status"
 
-    response = requests.get(API_URL, headers=headers, params=params)
+    response = requests.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
 
