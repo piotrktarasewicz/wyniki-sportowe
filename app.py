@@ -17,47 +17,46 @@ AUTO_REFRESH_MINUTES = 30
 MANUAL_REFRESH_MINUTES = 5
 
 
-# ---------------------------
-# Pobieranie danych z 90minut
-# ---------------------------
-
-def fetch_league(url, league_name):
-    response = requests.get(url)
-    response.raise_for_status()
-
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    matches = []
-
-    for row in soup.find_all("tr"):
-        text = row.get_text(" ", strip=True)
-
-        if " - " in text and ":" in text:
-            matches.append(text)
-
-    return {
-        "league": league_name,
-        "matches": matches
-    }
-
-
 def fetch_polish_matches():
 
     leagues = [
-        ("Ekstraklasa", "https://www.90minut.pl/liga/1/liga12694.html"),
-        ("I liga", "https://www.90minut.pl/liga/1/liga12695.html"),
-        ("II liga", "https://www.90minut.pl/liga/1/liga12696.html"),
-        ("III liga", "https://www.90minut.pl/liga/1/liga12697.html")
+        ("Ekstraklasa", "https://www.laczynaspilka.pl/rozgrywki/ekstraklasa/wyniki"),
+        ("I liga", "https://www.laczynaspilka.pl/rozgrywki/1-liga/wyniki"),
+        ("II liga", "https://www.laczynaspilka.pl/rozgrywki/2-liga/wyniki")
     ]
+
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
 
     data = []
 
-    for name, url in leagues:
+    for league_name, url in leagues:
+
         try:
-            league_data = fetch_league(url, name)
-            data.append(league_data)
+
+            response = requests.get(url, headers=headers, timeout=20)
+            response.raise_for_status()
+
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            matches = []
+
+            for line in soup.get_text("\n").splitlines():
+
+                line = line.strip()
+
+                if " - " in line and ":" in line:
+                    matches.append(line)
+
+            data.append({
+                "league": league_name,
+                "matches": matches[:20]
+            })
+
         except Exception as e:
-            print("League fetch error:", name, e)
+            print("League fetch error:", league_name, e)
 
     return data
 
