@@ -1,4 +1,3 @@
-import os
 import requests
 from flask import Flask, jsonify, render_template_string
 from datetime import datetime, timedelta
@@ -17,6 +16,10 @@ cache = {
 AUTO_REFRESH_MINUTES = 30
 MANUAL_REFRESH_MINUTES = 5
 
+
+# ---------------------------
+# Pobieranie wyników
+# ---------------------------
 
 def fetch_polish_matches():
 
@@ -39,7 +42,6 @@ def fetch_polish_matches():
             response = requests.get(url, headers=headers, timeout=20)
             response.raise_for_status()
 
-            from bs4 import BeautifulSoup
             soup = BeautifulSoup(response.text, "html.parser")
 
             matches = []
@@ -87,12 +89,13 @@ def update_cache(force=False):
 
 
 # ---------------------------
-# Scheduler
+# Scheduler w tle
 # ---------------------------
 
 def scheduler():
 
     while True:
+
         try:
             update_cache(force=True)
         except Exception as e:
@@ -101,7 +104,13 @@ def scheduler():
         time.sleep(AUTO_REFRESH_MINUTES * 60)
 
 
-Thread(target=scheduler, daemon=True).start()
+def start_scheduler():
+    thread = Thread(target=scheduler)
+    thread.daemon = True
+    thread.start()
+
+
+start_scheduler()
 
 
 # ---------------------------
@@ -146,6 +155,7 @@ def index():
     updated = cache["last_update"]
 
     return render_template_string("""
+
     <h1>Wyniki piłki nożnej – Polska</h1>
 
     <p>Ostatnia aktualizacja: {{updated}}</p>
@@ -179,12 +189,10 @@ def index():
         fetch('/refresh')
         .then(r => r.json())
         .then(data => alert(data.message))
+        .then(() => location.reload())
+
     }
 
     </script>
+
     """, leagues=leagues, updated=updated)
-
-
-# pierwsze pobranie danych
-
-
