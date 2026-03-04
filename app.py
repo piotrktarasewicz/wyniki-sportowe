@@ -22,11 +22,12 @@ MANUAL_REFRESH_MINUTES = 5
 
 def fetch_matches_for_date(date_str):
     headers = {
-        "x-apisports-key": API_KEY,
-        "x-apisports-host": "v3.football.api-sports.io"
+        "x-apisports-key": API_KEY
     }
 
-    params = {"date": date_str}
+    params = {
+        "live": "all"
+    }
 
     response = requests.get(API_URL, headers=headers, params=params)
     response.raise_for_status()
