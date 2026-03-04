@@ -67,20 +67,11 @@ def process_data(raw):
 def update_cache(force=False):
     now = datetime.utcnow()
 
-    if not force:
-        if cache["last_update"] and now - cache["last_update"] < timedelta(minutes=AUTO_REFRESH_MINUTES):
-            return
-
-    if cache["last_api_call"] and not force:
-        if now - cache["last_api_call"] < timedelta(minutes=AUTO_REFRESH_MINUTES):
-            return
-
     try:
         today = datetime.utcnow().strftime("%Y-%m-%d")
         raw = fetch_matches_for_date(today)
         processed = process_data(raw)
 
-        # jeśli dziś brak meczów → sprawdź wczoraj
         if not processed["live"] and not processed["scheduled"] and not processed["finished"]:
             yesterday = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
             raw = fetch_matches_for_date(yesterday)
@@ -92,6 +83,13 @@ def update_cache(force=False):
 
     except Exception as e:
         print("API error:", e)
+        # NIE przerywamy działania aplikacji
+        if cache["data"] is None:
+            cache["data"] = {
+                "live": [],
+                "scheduled": [],
+                "finished": []
+            }
 
 
 def scheduler():
