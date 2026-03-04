@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import Flask, jsonify, render_template_string
 from datetime import datetime, timedelta
@@ -188,4 +189,5 @@ def index():
 
 update_cache(force=True)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
